@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useFileHandler } from "6pp";
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -7,26 +6,25 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
 import toast from "react-hot-toast";
-import { useNewPostMutation } from "../redux/api/postApi";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useCreateSponsorsMutation } from "../redux/api/sponsorsApi";
 
-const CreatePost = () => {
+const Createsponsors = () => {
     const { user } = useSelector((state) => state.user);
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("general"); // State for category
+    const [name, setName] = useState("");
+
     const navigate = useNavigate();
 
-    const [newPost, { isLoading }] = useNewPostMutation();
+    const [newSponsor, { isLoading }] = useCreateSponsorsMutation();
 
     const photos = useFileHandler("multiple", 5);
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        if (!title || !description) {
+        if (!name) {
             toast.error("Enter all fields");
             return;
         }
@@ -37,9 +35,7 @@ const CreatePost = () => {
         }
 
         const formData = new FormData();
-        formData.set("title", title);
-        formData.set("description", description);
-        formData.set("category", category); // Add category to FormData
+        formData.set("name", name);
 
         // Append each file to the FormData
         photos.file.forEach((file) => {
@@ -48,16 +44,16 @@ const CreatePost = () => {
 
         try {
             // Call the mutation function
-            const res = await newPost({ id: user._id, postData: formData });
+            const res = await newSponsor({ id: user._id, sponsorData: formData });
 
             if (res.data?.success) {
-                toast.success("Post created successfully");
-                navigate("/admin");
+                toast.success("Sponsor created successfully");
+                navigate("/sponsors");
             } else {
-                toast.error("Failed to create post");
+                toast.error("Failed to create sponsor");
             }
         } catch (error) {
-            toast.error(`An error occurred while creating the post ${error}`);
+            toast.error(`An error occurred while creating the sponsor ${error}`);
         }
     };
 
@@ -93,38 +89,16 @@ const CreatePost = () => {
             <div className="bg-white w-full md:w-1/2 text-black font-bold p-6 rounded-lg">
                 <form className="flex flex-col space-y-6" onSubmit={handleFormSubmit}>
                     <div>
-                        <label className="mb-2 text-lg block">Title</label>
+                        <label className="mb-2 text-lg block">Name</label>
                         <input
                             type="text"
-                            placeholder="Enter Title"
-                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Enter Name"
+                            onChange={(e) => setName(e.target.value)}
                             className="px-4 py-2.5 text-lg rounded-md bg-white border border-gray-400 w-full outline-blue-500"
                         />
                     </div>
-                    <div>
-                        <label className="mb-2 text-base block">Description</label>
-                        <textarea
-                            placeholder="Type Message"
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="p-4 bg-white mx-auto w-full block text-sm border border-gray-400 outline-[#007bff] rounded"
-                            rows="4"
-                        ></textarea>
-                    </div>
-                    <div>
-                        <label className="mb-2 text-base block">Category</label>
-                        <select
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
-                            className="px-4 py-2.5 text-lg rounded-md bg-white border border-gray-400 w-full outline-blue-500"
-                        >
-                            <option value="general">General</option>
-                            <option value="crime">Crime</option>
-                            <option value="health">Health</option>
-                            <option value="sports">Sports</option>
-                            <option value="story">Story</option>
-                            <option value="farming">Farming</option>
-                        </select>
-                    </div>
+
+
                     <div>
                         <label className="mb-2 text-base block">Photos</label>
                         <input
@@ -145,8 +119,7 @@ const CreatePost = () => {
                     </button>
                 </form>
             </div>
-        </div>
-    );
-};
+        </div>)
+}
 
-export default CreatePost;
+export default Createsponsors
