@@ -1,9 +1,13 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 import { useState, useEffect } from "react";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 import { RxDotFilled } from "react-icons/rx";
-import { useGetAllSponsorsQuery } from "../redux/api/sponsorsApi";
+import { useGetLimitedSponsorsQuery } from "../redux/api/sponsorsApi";
+
 const Sponsers = () => {
-    const { data } = useGetAllSponsorsQuery();
+    const [page, setPage] = useState(1);
+    const { data } = useGetLimitedSponsorsQuery({ page, limit: 15 });
     const [slides, setSlides] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -11,18 +15,18 @@ const Sponsers = () => {
     useEffect(() => {
         if (data?.sponsors) {
             const imageUrls = data.sponsors.map((sponsor) => ({
-                url: sponsor.photos[0]?.url || "",
+                url: sponsor.photos[0]?.url || "", // Handle case where photos might be missing
             }));
             setSlides(imageUrls);
         }
     }, [data]);
 
-    // Auto-slide every 3 seconds
+    // Auto-slide every 2 seconds
     useEffect(() => {
-        const interval = setInterval(() => {
+        const interval = setTimeout(() => {
             nextSlide();
         }, 3000);
-        return () => clearInterval(interval);
+        return () => clearTimeout(interval); // Cleanup timeout on component unmount
     }, [currentIndex, slides]);
 
     const prevSlide = () => {
@@ -30,19 +34,20 @@ const Sponsers = () => {
     };
 
     const nextSlide = () => {
+        // Generate a random index
         const randomIndex = Math.floor(Math.random() * slides.length);
         setCurrentIndex(randomIndex);
     };
 
     return (
-        <div className="w-full flex justify-center items-center py-4 mx-auto mt-16 md:mt-4">
-            {/* Responsive container - full width on mobile, square on larger screens */}
-            <div className="relative w-full sm:w-full md:max-w-[50vw] h-[65vh] md:h-0 md:pb-[37.5%] bg-gray-600 rounded-xl p-2 shadow-lg">
-                {/* Slide - absolute positioned to fill the container */}
+        <div className="w-full md:w-1/2 h-auto flex justify-center items-center py-4 mx-auto mt-16 md:mt-4">
+            {/* Added mt-16 for small screens and md:mt-4 for larger screens */}
+            <div className="relative w-full md:w-1/2 h-[50vh] md:h-[40vh] bg-gray-600 rounded-xl p-2 shadow-lg">
+                {/* Slide */}
                 {slides.length > 0 && (
                     <div
                         style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-                        className="absolute top-0 left-0 w-full h-full rounded-2xl bg-center bg-cover duration-500"
+                        className="w-full h-full rounded-2xl bg-center bg-cover duration-500"
                     ></div>
                 )}
 
@@ -63,7 +68,7 @@ const Sponsers = () => {
                 </div>
 
                 {/* Dots */}
-                <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                <div className="flex justify-center py-2">
                     {slides.map((_, index) => (
                         <div
                             key={index}
@@ -81,5 +86,5 @@ const Sponsers = () => {
         </div>
     );
 };
-export default Sponsers;
 
+export default Sponsers;
