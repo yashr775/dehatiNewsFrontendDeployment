@@ -8,6 +8,8 @@ import {
 import ReactGA from "react-ga4";
 import Protectedroute from "./components/Protectedroute.jsx";
 import Layout from "./components/Layout.jsx"; // Import the Layout component
+import NotificationSetup from "./components/NotificationSetup";
+
 
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Signin = lazy(() => import("./pages/Signin.jsx"));
@@ -29,6 +31,10 @@ ReactGA.initialize(import.meta.env.VITE_GOOGLEID);
 const Analytics = () => {
   const location = useLocation();
 
+  // if ("serviceWorker" in navigator) {
+  //   navigator.serviceWorker.register("/service-worker.js");
+  // }
+
   useEffect(() => {
     ReactGA.send("pageview", location.pathname);
   }, [location]);
@@ -37,8 +43,27 @@ const Analytics = () => {
 };
 
 const App = () => {
+
+  // if ("serviceWorker" in navigator) {
+  //   navigator.serviceWorker.register("/sw.js");
+  // }
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((reg) => {
+          console.log("✅ Service Worker registered:", reg.scope);
+        })
+        .catch((err) => {
+          console.error("❌ Service Worker error:", err);
+        });
+    }
+  }, []);
+
   return (
     <Router>
+      <NotificationSetup />
       <Analytics />
       <Routes>
         {/* Public Pages */}
@@ -170,5 +195,6 @@ const App = () => {
     </Router>
   );
 };
+
 
 export default App;
